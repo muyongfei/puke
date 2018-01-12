@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="jquerys.js"></script>
+</head>
+<style>
+	*{
+		padding: 0;
+		margin: 0;
+		border: 0;
+	}
+	.prok{
+		width: 800px;
+		height: 700px;
+		position: relative;
+		left: 0;
+		right: 0;
+		margin:0 auto;
+		background: #dfdfdf;
+	}
+	.pai{
+		width: 88px;
+		height: 120px;
+		background: #fff;
+		background-size: 100% 100%;
+		position: absolute;
+		top: 0px;
+		left: 350px;
+		margin: 0 5px;
+		font-size: 20px;
+		border: 1px solid #000;
+		line-height: 50px;
+		text-align: center;
+		opacity: 0;
+	}
+	.avtive{
+		border: 1px solid #1cbace;
+	}
+	.prok button:first-child{
+		width: 50px;
+		height: 20px;
+		background: blue;
+		line-height: 20px;
+		text-align: center;
+		position: absolute;
+		left: 50%;
+		top: 520px;
+		margin-left: -25px;
+		outline: none;
+	}
+	.prok button:nth-child(2){
+		width: 50px;
+		height: 20px;
+		background: blue;
+		line-height: 20px;
+		text-align: center;
+		position: absolute;
+		left: 50%;
+		top: 580px;
+		margin-left: -25px;
+		outline: none;
+	}
+</style>
+<body>	
+	<div class="prok">
+		<button class="rightbtn"> &gt </button>
+		<button  class="leftbtn"> &lt </button>	
+	</div>
+	
+</body>
+</html>
+<script>
+	$(function(){
+		let arr = [];
+		let arrs = ['a','d','h','s'];
+		let flag = [];
+		let prok=$('.prok')	
+		let rightbtn=$('.rightbtn');
+		let leftbtn=$('.leftbtn');
+		for(let i = 0; i < 52;i++){
+
+			let color = arrs[Math.floor(Math.random()*4)],
+				num = Math.floor(Math.random()*13+1);
+
+				do{
+					color = arrs[Math.floor(Math.random()*4)],
+					num = Math.floor(Math.random()*13+1);
+
+				}while(flag[color +'_'+ num]);
+				
+				arr.push({color,num})
+				flag[color +'_'+ num] = 'true';
+		}
+		console.log(flag);
+		console.log(arr);
+		let index = 0;
+		for(let i = 0;i < 7; i++){
+			for(let j = 0; j <= i;j++){
+				let divs = $('<div>');
+				let left = 350 - 50*i + 100*j;
+				let top = 50*i;
+				divs.attr('id',`${i}_${j}`)
+					.data('num',arr[index]['num']);
+				divs.css({backgroundImage:`url(img/${arr[index]['color']}${arr[index]['num']}.JPG)`})
+				divs.addClass('pai').html(arr[index].color+'--'+arr[index].num).appendTo('.prok')
+					.delay(150*i).animate({left,top,opacity:1});
+					index++;
+			}
+		}
+
+		for(;index < 52;index++){
+			let divs = $('<div>');
+			let left = 50;
+			divs.css({backgroundImage:`url(img/${arr[index]['color']}${arr[index]['num']}.JPG)`})
+				.data('num',arr[index]['num'])
+				.attr('id',-2+'_'+-2)
+				.addClass('left');
+			divs.addClass('pai').html(arr[index].color + '--' +arr[index].num).appendTo('.prok')
+			.delay(50*index).animate({left,top:'500',opacity:1})
+		}
+		let first=null;
+		let kai=true;
+		
+		prok.on('click','.pai',function(){
+			let coords=$(this).attr('id').split('_');
+			if($(`#${coords[0]*1+1}_${coords[1]*1}`).length  ||  $(`#${coords[0]*1+1}_${coords[1]*1+1}`).length){
+				return;
+			}
+			$(this).toggleClass('avtive');
+			if($(this).hasClass('avtive')){
+				$(this).animate({top:'-=20'},function(){
+					
+				})
+			}else{
+				$(this).animate({top:'+=20'},function(){
+					
+				})
+			}
+				
+			if(!first){
+				first = $(this);
+
+			}else{
+				if(first.data('num') + $(this).data('num') == 14){
+					$('.avtive').animate({
+						top:1,left:700,opacity:0
+					}, function () {
+						$(this).remove();
+					});
+				}else{
+					$('.avtive').animate({"top":'+=20'}).queue(function () {
+						$(this).removeClass('avtive');
+						$(this).dequeue();
+					})
+				}
+				first = null;
+			}
+		})
+		let zIndex=0;
+
+		rightbtn.on('click',function(){
+			if(!$('.left').length){
+				return;
+			}
+			zIndex++;
+			$('.left').last().removeClass('left').addClass('right').animate({zIndex,left:'+=600'});
+		})
+		leftbtn.on('click',function(){
+			if(!$('.right').length){
+				return;
+			}
+			$('.right').each(function(index,obj){
+				zIndex++;
+				let you=$('.right').first()
+				you.delay(index*60).removeClass('right').addClass('left').animate({zIndex,left:'-=600'});
+
+			})
+		})
+	})
+
+
+</script>
